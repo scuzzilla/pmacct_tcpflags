@@ -42,6 +42,41 @@ main(void)
   }
   printf("\n");
 
+  /* Dynamic memory alloc for tcpflags */
+  int tcpflags = 6;
+  int tcpflags_size = 4;
+
+  char **tcpflags_mem_alloc = (char **) malloc(tcpflags * sizeof(char *));
+
+  int idx_1;
+  for (idx_1 = 0; idx_1 < tcpflags; idx_1++)
+  {
+    tcpflags_mem_alloc[idx_1] = (char *) malloc(tcpflags_size * sizeof(char));
+  }
+
+  strcpy(tcpflags_mem_alloc[0], "URG");
+  strcpy(tcpflags_mem_alloc[1], "ACK");
+  strcpy(tcpflags_mem_alloc[2], "PSH");
+  strcpy(tcpflags_mem_alloc[3], "RST");
+  strcpy(tcpflags_mem_alloc[4], "SYN");
+  strcpy(tcpflags_mem_alloc[5], "FIN");
+
+  int idx_3;
+  for (idx_3 = 0; idx_3 < tcpflags; idx_3++)
+  {
+    printf("%s ", tcpflags_mem_alloc[idx_3]);
+  }
+  printf("\n");
+
+  /* Free up the mem previously allocated */
+  int idx_2;
+  for (idx_2 = 0; idx_2 < tcpflags; idx_2++)
+  {
+    free(tcpflags_mem_alloc[idx_2]);
+  }
+
+  free(tcpflags_mem_alloc);
+
   return (0);
 }
 
