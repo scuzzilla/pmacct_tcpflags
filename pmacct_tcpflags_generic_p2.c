@@ -1,4 +1,4 @@
-/* pmacct_tcpflags_generic_p1.c */
+/* pmacct_tcpflags_generic_p1.c - gcc pmacct_tcpflags_generic_p2.c -o bin/pmacct_tcpflags_generic_p2 -lavro */
 
 #include <stdio.h>
 #include <string.h>
@@ -8,12 +8,17 @@
 #include <avro.h>
 
 
+char tcpflags[6][5] = {"NULL", "NULL", "NULL", "NULL", "NULL", "NULL"};
+
 //
 // --- AVRO global variables ---
 //
-avro_schema_t sc_type_record, sc_type_array;
+avro_schema_t sc_type_record, sc_type_array, sc_type_string;
 
-char tcpflags[6][5] = {"NULL", "NULL", "NULL", "NULL", "NULL", "NULL"};
+//
+// --- AVRO prototypes ---
+//
+void compose_tcpflags_avro_schema(void);
 
 unsigned int generate_rnd(void);
 void generate_tcpflags_array(unsigned int);
@@ -22,7 +27,7 @@ void generate_tcpflags_array(unsigned int);
 int
 main(void)
 {
-  compose_label_avro_schema();
+  compose_tcpflags_avro_schema();
 
   while(1)
   {
@@ -94,7 +99,8 @@ void generate_tcpflags_array(unsigned int tcpflags_decimal)
 void
 compose_tcpflags_avro_schema(void)
 {
-  sc_type_array = avro_schema_array();
+  sc_type_string = avro_schema_string();
+  sc_type_array = avro_schema_array(sc_type_string);
   sc_type_record = avro_schema_record("acct_data", NULL);
   avro_schema_record_field_append(sc_type_record, "label", sc_type_array);
 
