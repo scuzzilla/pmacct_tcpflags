@@ -5,7 +5,13 @@
 #include <stdlib.h>
 #include <time.h>
 #include <unistd.h>
+#include <avro.h>
 
+
+//
+// --- AVRO global variables ---
+//
+avro_schema_t sc_type_record, sc_type_array;
 
 char tcpflags[6][5] = {"NULL", "NULL", "NULL", "NULL", "NULL", "NULL"};
 
@@ -16,6 +22,8 @@ void generate_tcpflags_array(unsigned int);
 int
 main(void)
 {
+  compose_label_avro_schema();
+
   while(1)
   {
     unsigned int rnd = generate_rnd();
@@ -55,7 +63,7 @@ void generate_tcpflags_array(unsigned int tcpflags_decimal)
   const char tcpflags_mask[6][5] = {"URG", "ACK", "PSH", "RST", "SYN", "FIN"};
 
   unsigned int idx_0;
-  if (tcpflags_decimal > 0)
+  if (64 > tcpflags_decimal > 0)
   {
     for (idx_0 = 5; tcpflags_decimal > 0 && idx_0 >= 0; idx_0--)
     {
@@ -79,4 +87,21 @@ void generate_tcpflags_array(unsigned int tcpflags_decimal)
     }
   }
   printf("\n");
+}
+//
+// --- AVRO functions ---
+//
+void
+compose_tcpflags_avro_schema(void)
+{
+  sc_type_array = avro_schema_array();
+  sc_type_record = avro_schema_record("acct_data", NULL);
+  avro_schema_record_field_append(sc_type_record, "label", sc_type_array);
+
+  FILE *avro_schema_fp = NULL;
+  avro_writer_t avro_schema_writer = NULL;
+  avro_schema_fp = fopen("avro_schema.dump", "w");
+  avro_schema_writer = avro_writer_file(avro_schema_fp);
+  avro_schema_to_json(sc_type_record, avro_schema_writer);
+  fclose(avro_schema_fp);
 }
