@@ -7,10 +7,11 @@
 #include <time.h>
 #include <string.h>
 
+
 const unsigned int TCPFLAGS_SIZE = 6;
 const unsigned int TCPFLAGS_MAX_COMBINATIONS = 63;
 unsigned int tcpflags_bin[6] = {0, 0, 0, 0, 0, 0};
-char tcpflags_str[6][10] = {"URG", "ACK", "PSH", "RST", "SYN", "FIN"};
+const char TCPFLAGS[6][4] = {"URG", "ACK", "PSH", "RST", "SYN", "FIN"};
 
 
 unsigned int generate_rnd(void);
@@ -117,3 +118,15 @@ void generate_tcpflags_from_bin(unsigned int *tcpflags_bin_ptr)
     }
   }
 }
+
+
+/* takes an 'unsigned int' input.
+ * generates a 'char array' in output
+ * with NULL on the unused flags
+ * returns the generated array
+ */
+
+char *
+
+
+
