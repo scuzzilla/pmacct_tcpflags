@@ -4,6 +4,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
+#include <unistd.h>
 
 
 char tcpflags[6][5] = {"NULL", "NULL", "NULL", "NULL", "NULL", "NULL"};
@@ -15,16 +16,20 @@ void generate_tcpflags_array(unsigned int);
 int
 main(void)
 {
-  unsigned int rnd = generate_rnd();
-
-  generate_tcpflags_array(rnd);
-
-  unsigned int idx_0;
-  for (idx_0 = 0; idx_0 < 6; idx_0++)
+  while(1)
   {
-    printf("%s ", tcpflags[idx_0]);
+    unsigned int rnd = generate_rnd();
+
+    generate_tcpflags_array(rnd);
+
+    unsigned int idx_0;
+    for (idx_0 = 0; idx_0 < 6; idx_0++)
+    {
+      printf("%s ", tcpflags[idx_0]);
+    }
+    printf("\n");
+    sleep(1);
   }
-  printf("\n");
 
   return (0);
 }
@@ -50,7 +55,7 @@ void generate_tcpflags_array(unsigned int tcpflags_decimal)
   const char tcpflags_mask[6][5] = {"URG", "ACK", "PSH", "RST", "SYN", "FIN"};
 
   unsigned int idx_0;
-  if (tcpflags_decimal > 0)
+  if (64 > tcpflags_decimal > 0)
   {
     for (idx_0 = 5; tcpflags_decimal > 0 && idx_0 >= 0; idx_0--)
     {
