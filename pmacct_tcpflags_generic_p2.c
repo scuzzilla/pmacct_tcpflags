@@ -68,7 +68,7 @@ void generate_tcpflags_array(unsigned int tcpflags_decimal)
   const char tcpflags_mask[6][5] = {"URG", "ACK", "PSH", "RST", "SYN", "FIN"};
 
   unsigned int idx_0;
-  if (64 > tcpflags_decimal > 0)
+  if ((tcpflags_decimal > 0) && (tcpflags_decimal) < 64)
   {
     for (idx_0 = 5; tcpflags_decimal > 0 && idx_0 >= 0; idx_0--)
     {
