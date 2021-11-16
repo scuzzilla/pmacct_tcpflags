@@ -22,7 +22,6 @@
 #include <unistd.h>
 #include <avro.h>
 #include <cdada/list.h>
-//#include <cdada/str.h>
 #include "cdada_types/tcpflag.h"
 
 CDADA_LIST_CUSTOM_TYPE_DECL(tcpflag);
@@ -116,11 +115,13 @@ tcpflags_to_linked_list(size_t tcpflags_decimal)
     memset(&tcpstate, 0, sizeof(tcpstate));
     if (!tcpflags_binary[idx_1])
     {
-      tcpstate.flag = "NULL";
+      printf("%lu ", tcpflags_binary[idx_1]);
+      strcpy(tcpstate.flag, "NULL");
     }
     else
     {
-      tcpstate.flag = tcpflags_mask[idx_1];
+      printf("%lu ", tcpflags_binary[idx_1]);
+      strcpy(tcpstate.flag, tcpflags_mask[idx_1]);
     }
     cdada_list_push_back(tcpflag_linked_list, &tcpstate);
   }
@@ -154,14 +155,13 @@ compose_tcpflags_avro_data(cdada_list_t *ll, int ll_size)
 {
   tcpflag tcpstate;
 
-  printf("start -> linked-list:\n");
+  printf("\nstart -> linked-list:\n");
   int idx_0;
   for (idx_0 = 0; idx_0 < ll_size; idx_0++)
   {
     cdada_list_get(ll, idx_0, &tcpstate);
     printf("tcpflag: %s\n", tcpstate.flag);
   }
-  printf("\n\n---\n");
 
   if_type_record = avro_generic_class_from_schema(sc_type_record);
   if_type_array = avro_generic_class_from_schema(sc_type_array);
@@ -231,10 +231,10 @@ print_tcpflags_avro_data(cdada_list_t *ll, int ll_size)
 
   size_t array_size;
   avro_value_get_size(&v_type_array, &array_size);
-  printf("print_array_size: %lu\n", array_size);
+  printf("\nprint_array_size: %lu\n", array_size);
 
   int idx_0;
-  for (idx_0 = 0; idx_0 < array_size; idx_0++)
+  for (idx_0 = 0; idx_0 < ll_size; idx_0++)
   {
     if (avro_value_get_by_name(&v_type_record, "tcp_flags", &v_type_array, NULL) == 0)
     {

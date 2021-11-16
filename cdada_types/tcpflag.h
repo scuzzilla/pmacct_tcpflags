@@ -3,7 +3,7 @@
 
 /* Data structures */
 typedef struct {
-  const char *flag;
+  char flag[5];
 } __attribute__((packed)) tcpflag;
 
 #endif
