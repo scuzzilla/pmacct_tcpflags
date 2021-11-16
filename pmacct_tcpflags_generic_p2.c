@@ -1,4 +1,4 @@
-/* pmacct_tcpflags_generic_p1.c - gcc pmacct_tcpflags_generic_p2.c -o bin/pmacct_tcpflags_generic_p2 -lavro */
+/* pmacct_tcpflags_generic_p2.c - gcc pmacct_tcpflags_generic_p2.c -o bin/pmacct_tcpflags_generic_p2 -lavro */
 
 #include <stdio.h>
 #include <string.h>

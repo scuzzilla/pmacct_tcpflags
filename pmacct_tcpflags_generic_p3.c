@@ -1,4 +1,4 @@
-/* pmacct_tcpflags_generic_p1.c - gcc pmacct_tcpflags_generic_p2.c -o bin/pmacct_tcpflags_generic_p2 -lavro */
+/* pmacct_tcpflags_generic_p3.c - gcc pmacct_tcpflags_generic_p3.c -o bin/pmacct_tcpflags_generic_p3 -lavro */
 
 #include <stdio.h>
 #include <string.h>
@@ -73,9 +73,10 @@ generate_rnd()
 
 void generate_tcpflags_array(size_t tcpflags_decimal)
 {
-  size_t tcpflags_binary[6] = {0, 0, 0, 0, 0, 0};
+  size_t tcpflags_binary[6] = {0};
   const char tcpflags_mask[6][5] = {"URG", "ACK", "PSH", "RST", "SYN", "FIN"};
 
+  /* tcpflags binary format - valid decimals between 0 & 63 */
   size_t idx_0;
   if ((tcpflags_decimal > 0) && (tcpflags_decimal) < 64)
   {
