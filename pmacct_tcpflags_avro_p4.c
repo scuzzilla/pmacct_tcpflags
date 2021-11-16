@@ -1,4 +1,19 @@
-/* pmacct_tcpflags_generic_p3.c - gcc pmacct_tcpflags_generic_p3.c -o bin/pmacct_tcpflags_generic_p3 -lavro */
+/*
+ * fourth prototype - linked-list logic with libcdada (AVRO version)
+ *
+ * 1. Invoke generator with the types you want to support
+ *    ~/Projects/libcdada/tools/cdada-gen list:tcpflag -o ~/Projects/pmacct_tcpflags/autogen_cdada_tcpflag.cc
+ *
+ * 2. Add header includes for types 'tcpflags' in the place holder
+ *    vim ~/Projects/pmacct_tcpflags/autogen_cdada_tcpflag.cc
+ *
+ * 3. Add to your build system
+ *    g++ -c ~/Projects/pmacct_tcpflags/autogen_cdada_tcpflag.cc
+ *
+ * 4. Link your application; make sure to link against -lcdada:
+ *    cd ~/Projects/pmacct_tcpflags/
+ *    gcc pmacct_tcpflags_avro_p4.c autogen_cdada_tcpflag.o -o bin/pmacct_tcpflags_avro_p4 -lcdada -lstdc++ -lavro
+ */
 
 #include <stdio.h>
 #include <string.h>
@@ -6,6 +21,10 @@
 #include <time.h>
 #include <unistd.h>
 #include <avro.h>
+#include <cdada/str.h>
+#include "cdada_types/tcpflag.h"
+
+CDADA_LIST_CUSTOM_TYPE_DECL(tcpflag);
 
 
 char tcpflags[6][5] = {"NULL", "NULL", "NULL", "NULL", "NULL", "NULL"};
