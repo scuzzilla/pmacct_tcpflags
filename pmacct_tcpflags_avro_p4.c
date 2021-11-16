@@ -38,8 +38,8 @@ avro_value_iface_t *if_type_record, *if_type_array, *if_type_string;
 // --- AVRO prototypes ---
 //
 void compose_tcpflags_avro_schema(void);
-int compose_tcpflags_avro_data(cdada_list_t *, int);
-int print_tcpflags_avro_data(cdada_list_t *, int);
+int compose_tcpflags_avro_data(cdada_list_t *, size_t);
+int print_tcpflags_avro_data(cdada_list_t *, size_t);
 void free_tcpflags_avro_data_memory(void);
 
 /* Function prototypes */
@@ -92,11 +92,10 @@ generate_rnd()
 cdada_list_t *
 tcpflags_to_linked_list(size_t tcpflags_decimal)
 {
-  cdada_list_t *tcpflag_linked_list = cdada_list_create_custom(tcpflag);
-  tcpflag tcpstate;
-
-  size_t tcpflags_binary[6] = {0};
+  /* Generate the flag's binary array */
+  /* the flag's size is equal to the struct's tcpflag.flag size */
   const char tcpflags_mask[6][5] = {"URG", "ACK", "PSH", "RST", "SYN", "FIN"};
+  size_t tcpflags_binary[6] = {0};
 
   /* tcpflags binary format - valid decimals between 0 & 63 */
   size_t idx_0;
@@ -108,6 +107,10 @@ tcpflags_to_linked_list(size_t tcpflags_decimal)
       tcpflags_decimal /= 2;
     }
   }
+
+  /* Generate the flag's linked-list */
+  cdada_list_t *tcpflag_linked_list = cdada_list_create_custom(tcpflag);
+  tcpflag tcpstate;
 
   size_t idx_1;
   for (idx_1 = 0; idx_1 < 6; idx_1++)
@@ -151,12 +154,12 @@ compose_tcpflags_avro_schema(void)
 
 
 int
-compose_tcpflags_avro_data(cdada_list_t *ll, int ll_size)
+compose_tcpflags_avro_data(cdada_list_t *ll, size_t ll_size)
 {
   tcpflag tcpstate;
 
   printf("\nstart -> linked-list:\n");
-  int idx_0;
+  size_t idx_0;
   for (idx_0 = 0; idx_0 < ll_size; idx_0++)
   {
     cdada_list_get(ll, idx_0, &tcpstate);
@@ -186,7 +189,7 @@ compose_tcpflags_avro_data(cdada_list_t *ll, int ll_size)
   avro_value_get_size(&v_type_array, &array_size);
   printf("before: %lu\n", array_size);
 
-  int idx_1;
+  size_t idx_1;
   for (idx_1 = 0; idx_1 < ll_size; idx_1++)
   {
     cdada_list_get(ll, idx_1, &tcpstate);
@@ -194,6 +197,7 @@ compose_tcpflags_avro_data(cdada_list_t *ll, int ll_size)
     {
       if (avro_value_append(&v_type_array, &v_type_string, NULL) == 0)
       {
+        /* Serialize only flags set to 1 */
         if (strcmp(tcpstate.flag, "NULL") != 0)
         {
           avro_value_set_string(&v_type_string, tcpstate.flag);
@@ -214,7 +218,7 @@ compose_tcpflags_avro_data(cdada_list_t *ll, int ll_size)
 
 
 int
-print_tcpflags_avro_data(cdada_list_t *ll, int ll_size)
+print_tcpflags_avro_data(cdada_list_t *ll, size_t ll_size)
 {
   const char *dbname = "avro_record.db";
   avro_file_reader_t db_r;
@@ -233,7 +237,7 @@ print_tcpflags_avro_data(cdada_list_t *ll, int ll_size)
   avro_value_get_size(&v_type_array, &array_size);
   printf("\nprint_array_size: %lu\n", array_size);
 
-  int idx_0;
+  size_t idx_0;
   for (idx_0 = 0; idx_0 < ll_size; idx_0++)
   {
     if (avro_value_get_by_name(&v_type_record, "tcp_flags", &v_type_array, NULL) == 0)
