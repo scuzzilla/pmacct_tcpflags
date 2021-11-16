@@ -268,6 +268,6 @@ free_tcpflags_avro_data_memory(void)
   avro_schema_decref(sc_type_array);
   avro_schema_decref(sc_type_string);
   //avro_value_decref(&v_type_record);
-  //avro_value_decref(&v_type_map);
+  //avro_value_decref(&v_type_array);
   //avro_value_decref(&v_type_string);
 }
