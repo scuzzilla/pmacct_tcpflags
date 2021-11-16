@@ -12,7 +12,7 @@
  *
  * 4. Link your application; make sure to link against -lcdada:
  *    cd ~/Projects/pmacct_tcpflags/
- *    gcc pmacct_tcpflags_avro_p4.c autogen_cdada_tcpflag.o -o bin/pmacct_tcpflags_avro_p4 -lcdada -lstdc++ -lavro
+ *    gcc -Wall pmacct_tcpflags_avro_p4.c autogen_cdada_tcpflag.o -o bin/pmacct_tcpflags_avro_p4 -lcdada -lstdc++ -lavro
  */
 
 #include <stdio.h>
@@ -21,13 +21,12 @@
 #include <time.h>
 #include <unistd.h>
 #include <avro.h>
-#include <cdada/str.h>
+#include <cdada/list.h>
+//#include <cdada/str.h>
 #include "cdada_types/tcpflag.h"
 
 CDADA_LIST_CUSTOM_TYPE_DECL(tcpflag);
 
-
-char tcpflags[6][5] = {"NULL", "NULL", "NULL", "NULL", "NULL", "NULL"};
 
 //
 // --- AVRO global variables ---
@@ -40,13 +39,13 @@ avro_value_iface_t *if_type_record, *if_type_array, *if_type_string;
 // --- AVRO prototypes ---
 //
 void compose_tcpflags_avro_schema(void);
-int compose_tcpflags_avro_data(char tcpflags[6][5]);
-int print_tcpflags_avro_data();
+int compose_tcpflags_avro_data(cdada_list_t *, int);
+int print_tcpflags_avro_data(cdada_list_t *, int);
 void free_tcpflags_avro_data_memory(void);
 
 /* Function prototypes */
 size_t generate_rnd(void);
-void generate_tcpflags_array(size_t);
+cdada_list_t *tcpflags_to_linked_list(size_t);
 
 
 int
@@ -56,19 +55,19 @@ main(void)
 
   while(1)
   {
+    /* rnd unsigned int (0 - 63) generation */
     size_t rnd = generate_rnd();
 
-    generate_tcpflags_array(rnd);
+    /* linked-list creation */
+    cdada_list_t *tcpflag_ll = tcpflags_to_linked_list(rnd);
+    int ll_size = cdada_list_size(tcpflag_ll);
 
-    size_t idx_0;
-    for (idx_0 = 0; idx_0 < 6; idx_0++)
-    {
-      printf("%s ", tcpflags[idx_0]);
-    }
-    printf("\n");
-    compose_tcpflags_avro_data(tcpflags);
-    print_tcpflags_avro_data();
+    compose_tcpflags_avro_data(tcpflag_ll, ll_size);
+    print_tcpflags_avro_data(tcpflag_ll, ll_size);
     free_tcpflags_avro_data_memory();
+
+    cdada_list_destroy(tcpflag_ll);
+
     sleep(1);
   }
 
@@ -90,8 +89,13 @@ generate_rnd()
 }
 
 
-void generate_tcpflags_array(size_t tcpflags_decimal)
+/* tcpflags to linked-list*/
+cdada_list_t *
+tcpflags_to_linked_list(size_t tcpflags_decimal)
 {
+  cdada_list_t *tcpflag_linked_list = cdada_list_create_custom(tcpflag);
+  tcpflag tcpstate;
+
   size_t tcpflags_binary[6] = {0};
   const char tcpflags_mask[6][5] = {"URG", "ACK", "PSH", "RST", "SYN", "FIN"};
 
@@ -109,19 +113,22 @@ void generate_tcpflags_array(size_t tcpflags_decimal)
   size_t idx_1;
   for (idx_1 = 0; idx_1 < 6; idx_1++)
   {
+    memset(&tcpstate, 0, sizeof(tcpstate));
     if (!tcpflags_binary[idx_1])
     {
-      printf("%lu ", tcpflags_binary[idx_1]);
-      strcpy(tcpflags[idx_1], "NULL");
+      tcpstate.flag = "NULL";
     }
     else
     {
-      printf("%lu ", tcpflags_binary[idx_1]);
-      strcpy(tcpflags[idx_1], tcpflags_mask[idx_1]);
+      tcpstate.flag = tcpflags_mask[idx_1];
     }
+    cdada_list_push_back(tcpflag_linked_list, &tcpstate);
   }
-  printf("\n");
+
+  return tcpflag_linked_list;
 }
+
+
 //
 // --- AVRO functions ---
 //
@@ -143,8 +150,19 @@ compose_tcpflags_avro_schema(void)
 
 
 int
-compose_tcpflags_avro_data(char tcpflags[6][5])
+compose_tcpflags_avro_data(cdada_list_t *ll, int ll_size)
 {
+  tcpflag tcpstate;
+
+  printf("start -> linked-list:\n");
+  int idx_0;
+  for (idx_0 = 0; idx_0 < ll_size; idx_0++)
+  {
+    cdada_list_get(ll, idx_0, &tcpstate);
+    printf("tcpflag: %s\n", tcpstate.flag);
+  }
+  printf("\n\n---\n");
+
   if_type_record = avro_generic_class_from_schema(sc_type_record);
   if_type_array = avro_generic_class_from_schema(sc_type_array);
   if_type_string = avro_generic_class_from_schema(sc_type_string);
@@ -169,15 +187,16 @@ compose_tcpflags_avro_data(char tcpflags[6][5])
   printf("before: %lu\n", array_size);
 
   int idx_1;
-  for (idx_1 = 0; idx_1 < 6; idx_1++)
+  for (idx_1 = 0; idx_1 < ll_size; idx_1++)
   {
+    cdada_list_get(ll, idx_1, &tcpstate);
     if (avro_value_get_by_name(&v_type_record, "tcp_flags", &v_type_array, NULL) == 0)
     {
       if (avro_value_append(&v_type_array, &v_type_string, NULL) == 0)
       {
-        //if (strcmp(tcpflags[idx_1], "NULL") != 0)
+        if (strcmp(tcpstate.flag, "NULL") != 0)
         {
-          avro_value_set_string(&v_type_string, tcpflags[idx_1]);
+          avro_value_set_string(&v_type_string, tcpstate.flag);
         }
       }
     }
@@ -195,7 +214,7 @@ compose_tcpflags_avro_data(char tcpflags[6][5])
 
 
 int
-print_tcpflags_avro_data()
+print_tcpflags_avro_data(cdada_list_t *ll, int ll_size)
 {
   const char *dbname = "avro_record.db";
   avro_file_reader_t db_r;
