@@ -31,15 +31,15 @@ CDADA_LIST_CUSTOM_TYPE_DECL(tcpflag);
 // --- AVRO global variables ---
 //
 avro_schema_t sc_type_record, sc_type_array, sc_type_string;
-avro_value_t v_type_string, v_type_array, v_type_record;
-avro_value_iface_t *if_type_record, *if_type_array, *if_type_string;
 
+avro_value_t v_type_record;
+avro_value_iface_t *if_type_record;
 //
 // --- AVRO prototypes ---
 //
 void compose_tcpflags_avro_schema(void);
-int compose_tcpflags_avro_data(cdada_list_t *, size_t);
-int print_tcpflags_avro_data(cdada_list_t *, size_t);
+int compose_tcpflags_avro_data(cdada_list_t *, size_t, avro_value_t);
+int print_tcpflags_avro_data(cdada_list_t *, size_t, avro_value_t);
 void free_tcpflags_avro_data_memory(void);
 
 /* Function prototypes */
@@ -61,14 +61,15 @@ main(void)
     cdada_list_t *tcpflag_ll = tcpflags_to_linked_list(rnd);
     int ll_size = cdada_list_size(tcpflag_ll);
 
-    compose_tcpflags_avro_data(tcpflag_ll, ll_size);
-    print_tcpflags_avro_data(tcpflag_ll, ll_size);
-    free_tcpflags_avro_data_memory();
+    compose_tcpflags_avro_data(tcpflag_ll, ll_size, v_type_record);
+    print_tcpflags_avro_data(tcpflag_ll, ll_size, v_type_record);
 
     cdada_list_destroy(tcpflag_ll);
 
     sleep(1);
   }
+
+  free_tcpflags_avro_data_memory();
 
   return (0);
 }
@@ -154,8 +155,20 @@ compose_tcpflags_avro_schema(void)
 
 
 int
-compose_tcpflags_avro_data(cdada_list_t *ll, size_t ll_size)
+compose_tcpflags_avro_data(cdada_list_t *ll, size_t ll_size, avro_value_t v_type_record)
 {
+  avro_value_t v_type_string, v_type_array;
+
+  avro_value_iface_t *if_type_array, *if_type_string;
+  if_type_record = avro_generic_class_from_schema(sc_type_record);
+  if_type_array = avro_generic_class_from_schema(sc_type_array);
+  if_type_string = avro_generic_class_from_schema(sc_type_string);
+
+  avro_generic_value_new(if_type_record, &v_type_record);
+  avro_generic_value_new(if_type_array, &v_type_array);
+  avro_generic_value_new(if_type_string, &v_type_string);
+
+
   tcpflag tcpstate;
 
   printf("\nstart -> linked-list:\n");
@@ -165,14 +178,6 @@ compose_tcpflags_avro_data(cdada_list_t *ll, size_t ll_size)
     cdada_list_get(ll, idx_0, &tcpstate);
     printf("tcpflag: %s\n", tcpstate.flag);
   }
-
-  if_type_record = avro_generic_class_from_schema(sc_type_record);
-  if_type_array = avro_generic_class_from_schema(sc_type_array);
-  if_type_string = avro_generic_class_from_schema(sc_type_string);
-
-  avro_generic_value_new(if_type_record, &v_type_record);
-  avro_generic_value_new(if_type_array, &v_type_array);
-  avro_generic_value_new(if_type_string, &v_type_string);
 
   avro_file_writer_t db_w;
   const char *dbname = "avro_record.db";
@@ -207,19 +212,39 @@ compose_tcpflags_avro_data(cdada_list_t *ll, size_t ll_size)
   }
   avro_file_writer_append_value(db_w, &v_type_record);
 
+
   avro_file_writer_flush(db_w);
   avro_file_writer_close(db_w);
 
   avro_value_get_size(&v_type_array, &array_size);
   printf("after: %lu\n", array_size);
 
+  avro_value_decref(&v_type_string);
+  avro_value_decref(&v_type_array);
+  //avro_value_decref(&v_type_record);
+
+  avro_value_iface_decref(if_type_string); //no need to decref the associated value
+  avro_value_iface_decref(if_type_array); //no need to decref the associated value
+  //avro_value_iface_decref(if_type_record); //no need to decref the associated value
+
   return 0;
 }
 
 
 int
-print_tcpflags_avro_data(cdada_list_t *ll, size_t ll_size)
+print_tcpflags_avro_data(cdada_list_t *ll, size_t ll_size, avro_value_t v_type_record)
 {
+  avro_value_t v_type_string, v_type_array;
+
+  avro_value_iface_t *if_type_array, *if_type_string;
+  if_type_record = avro_generic_class_from_schema(sc_type_record);
+  if_type_array = avro_generic_class_from_schema(sc_type_array);
+  if_type_string = avro_generic_class_from_schema(sc_type_string);
+
+  avro_generic_value_new(if_type_record, &v_type_record);
+  avro_generic_value_new(if_type_array, &v_type_array);
+  avro_generic_value_new(if_type_string, &v_type_string);
+
   const char *dbname = "avro_record.db";
   avro_file_reader_t db_r;
   int rval_r = avro_file_reader(dbname, &db_r);
@@ -254,6 +279,14 @@ print_tcpflags_avro_data(cdada_list_t *ll, size_t ll_size)
 
   avro_file_reader_close(db_r);
 
+  avro_value_decref(&v_type_string);
+  avro_value_decref(&v_type_array);
+  //avro_value_decref(&v_type_record);
+
+  avro_value_iface_decref(if_type_string); //no need to decref the associated value
+  avro_value_iface_decref(if_type_array); //no need to decref the associated value
+  //avro_value_iface_decref(if_type_record); //no need to decref the associated value
+
   return 0;
 }
 
@@ -261,13 +294,13 @@ print_tcpflags_avro_data(cdada_list_t *ll, size_t ll_size)
 void
 free_tcpflags_avro_data_memory(void)
 {
-  avro_value_iface_decref(if_type_record); //no need to decref the associated value
-  avro_value_iface_decref(if_type_array); //no need to decref the associated value
-  avro_value_iface_decref(if_type_string); //no need to decref the associated value
   avro_schema_decref(sc_type_record);
   avro_schema_decref(sc_type_array);
   avro_schema_decref(sc_type_string);
-  //avro_value_decref(&v_type_record);
+  avro_value_iface_decref(if_type_record); //no need to decref the associated value
+  //avro_value_iface_decref(if_type_array); //no need to decref the associated value
+  //avro_value_iface_decref(if_type_string); //no need to decref the associated value
+  avro_value_decref(&v_type_record);
   //avro_value_decref(&v_type_array);
   //avro_value_decref(&v_type_string);
 }
