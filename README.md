@@ -20,8 +20,8 @@ is taking care of loading the active TCP-Flags into an array before proceeding w
 ### JSON output
 - Current
 ```JSON
-{                                                                                                                                                              │
-  "tcp_flags": "decimal_value",                                                                                                                                               │
+{                                                                                                                                                              
+  "tcp_flags": "decimal_value",                                                                                                                                               
   "other1": "other1",
   "other2": "other2",
   "other3": "other3"
@@ -30,15 +30,15 @@ is taking care of loading the active TCP-Flags into an array before proceeding w
 
 - Future
 ```JSON
-{                                                                                                                                                              │
-  "tcp_flags": [                                                                                                                                               │
-    "URG",                                                                                                                                                     │
-    "ACK",                                                                                                                                                     │
+{                                                                                                                                                              
+  "tcp_flags": [                                                                                                                                             
+    "URG",                                                                                                                                                  
+    "ACK",                                                                                                                                                  
     "PSH",
-    "RST",                                                                                                                                                     │
-    "SYN",                                                                                                                                                     │
-    "FIN"                                                                                                                                                      │
-  ],                                                                                                                                                            │
+    "RST",                                                                                                                                                     
+    "SYN",                                                                                                                                                     
+    "FIN"                                                                                                                                                     
+  ],                                                                                                                                                            
   "other1": "other1",
   "other2": "other2",
   "other3": "other3"
@@ -64,19 +64,19 @@ is taking care of loading the active TCP-Flags into an array before proceeding w
 
 - Future
 ```JSON
-{                                                                                                                                                              │
-  "type": "record",                                                                                                                                            │    PID USER      PRI  NI  VIRT   RES   SHR S CPU%▽MEM%   TIME+  Command                                                                                      
-  "name": "acct_data",                                                                                                                                         │
-  "fields": [                                                                                                                                                  │
-    {                                                                                                                                                          │
-      "name": "tcp_flags",                                                                                                                                     │
-      "type": {                                                                                                                                                │
-        "type": "array",                                                                                                                                       │
-        "items": {                                                                                                                                             │
-          "type": "string"                                                                                                                                     │
-        }                                                                                                                                                      │
-      }                                                                                                                                                        │
-    }                                                                                                                                                          │
-  ]                                                                                                                                                            │
+{                                                                                                                                                              
+  "type": "record",                                                                                                                                                                                                                                 
+  "name": "acct_data",                                                                                                                                        
+  "fields": [                                                                                                                                                 
+    {                                                                                                                                                          
+      "name": "tcp_flags",                                                                                                                                     
+      "type": {                                                                                                                                               
+        "type": "array",                                                                                                                                       
+        "items": {                                                                                                                                             
+          "type": "string"                                                                                                                                     
+        }                                                                                                                                                      
+      }                                                                                                                                                        
+    }                                                                                                                                                          
+  ] 
 }       
 ```
