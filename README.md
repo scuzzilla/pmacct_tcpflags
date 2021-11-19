@@ -1,7 +1,7 @@
 ### Summary
 
 The current implementation of PMACCT is encoding the six TCP's Control bits into decimal format. It's the responsibility
-of an external entity to decode them into the human-readable format  [URG, ACK, PSH, RST, SYN, FIN](Reference https://datatracker.ietf.org/doc/html/rfc793#section-3.1).
+of an external entity to decode them into the human-readable format  [URG, ACK, PSH, RST, SYN, FIN](https://datatracker.ietf.org/doc/html/rfc793#section-3.1).
 
 The main aim of the new implementation is to embed the decoding action within PMACCT.
 
